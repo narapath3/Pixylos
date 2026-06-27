@@ -104,9 +104,9 @@ const Game = {
             document.getElementById('game-screen').style.display = 'block';
             this.state = 'playing';
 
-            // Auto-join pending world (use C_ENTER_WORLD since player is already created during login/register/guest)
+            // Auto-join pending world
             const pendingWorld = sessionStorage.getItem('pendingWorld') || 'START';
-            Network.send(PacketTypes.C_ENTER_WORLD, { world: pendingWorld });
+            Network.joinWorld(pendingWorld);
         });
 
         Network.on(PacketTypes.S_WORLD_DATA, (data) => {

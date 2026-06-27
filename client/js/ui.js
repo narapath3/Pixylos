@@ -159,7 +159,7 @@ const UI = {
             case '/go':
             case '/world':
                 if (parts[1]) {
-                    Network.send(PacketTypes.C_ENTER_WORLD, { world: parts[1] });
+                    Network.joinWorld(parts[1]);
                 }
                 break;
             case '/shop':
@@ -224,7 +224,7 @@ const UI = {
         const goToWorld = () => {
             const name = input.value.trim();
             if (name) {
-                Network.send(PacketTypes.C_ENTER_WORLD, { world: name });
+                Network.joinWorld(name);
             }
             dialog.style.display = 'none';
             input.value = '';
@@ -423,7 +423,7 @@ const UI = {
                     <button class="btn-visit">Visit</button>
                 `;
                 el.querySelector('.btn-visit').onclick = () => {
-                    Network.send(PacketTypes.C_ENTER_WORLD, { world: w.name });
+                    Network.joinWorld(w.name);
                     dialog.style.display = 'none';
                 };
                 list.appendChild(el);
@@ -669,7 +669,7 @@ const UI = {
             if (error) return this.showNotification(error);
 
             sessionStorage.setItem('pendingWorld', world);
-            Network.joinWorld(world);
+            // S_JOIN_OK handler in main.js will call joinWorld
         };
 
         document.getElementById('btn-guest-submit').onclick = async () => {
@@ -696,6 +696,7 @@ const UI = {
             await Network.fetchProfile();
 
             if (Network.handlers[PacketTypes.S_JOIN_OK]) {
+                sessionStorage.setItem('pendingWorld', world);
                 Network.handlers[PacketTypes.S_JOIN_OK]({ name: name || 'Guest' });
             }
         };
