@@ -8,11 +8,20 @@ const Network = {
     currentWorld: null,
 
     async init() {
-        // Check for existing session
-        const { data: { session } } = await supa.auth.getSession();
-        if (session) {
-            this.currentUser = session.user;
-            this.connected = true;
+        if (typeof supa === 'undefined') {
+            console.warn('[Network] Supabase client (supa) is not defined. Check supabase.js');
+            return;
+        }
+
+        try {
+            // Check for existing session
+            const { data: { session } } = await supa.auth.getSession();
+            if (session) {
+                this.currentUser = session.user;
+                this.connected = true;
+            }
+        } catch (e) {
+            console.error('[Network] Failed to get session:', e);
         }
 
         // Listen for auth changes

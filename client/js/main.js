@@ -8,7 +8,12 @@ const Game = {
         console.log('🌍 PixelWorld Initializing...');
 
         // Connect network (Supabase)
-        await Network.init();
+        try {
+            await Network.init();
+        } catch (e) {
+            console.error('[Game] Network initialization failed:', e);
+            // We allow the game to continue so the UI can at least render
+        }
 
         // Initialize Sprites
         SpriteManager.init();
