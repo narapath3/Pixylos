@@ -1,0 +1,1035 @@
+/* ============================================
+   PixelWorld - Game CSS
+   Dark theme, pixel-art inspired UI
+   ============================================ */
+
+:root {
+    --bg-dark: #0a0a1a;
+    --bg-panel: #12122a;
+    --bg-input: #1a1a3a;
+    --bg-slot: #1e1e40;
+    --bg-slot-selected: #3a3a7a;
+    --text-primary: #e0e0ff;
+    --text-secondary: #8888bb;
+    --text-accent: #00e5ff;
+    --accent: #00e5ff;
+    --accent-glow: rgba(0, 229, 255, 0.3);
+    --accent-green: #00ff88;
+    --accent-red: #ff4466;
+    --accent-gold: #ffd700;
+    --border: #2a2a5a;
+    --shadow: 0 4px 24px rgba(0, 0, 0, 0.6);
+    --font-pixel: 'Press Start 2P', monospace;
+    --font-ui: 'Inter', sans-serif;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background: var(--bg-dark);
+    color: var(--text-primary);
+    font-family: var(--font-ui);
+    overflow: hidden;
+    width: 100vw;
+    height: 100vh;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+/* ============ LOGIN SCREEN ============ */
+
+#login-screen {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100vw;
+    height: 100vh;
+    background: linear-gradient(135deg, #0a0a2e 0%, #1a0a3e 50%, #0a1a2e 100%);
+    animation: bgShift 8s ease-in-out infinite alternate;
+}
+
+@keyframes bgShift {
+    0% {
+        background: linear-gradient(135deg, #0a0a2e 0%, #1a0a3e 50%, #0a1a2e 100%);
+    }
+
+    100% {
+        background: linear-gradient(135deg, #0a1a2e 0%, #0a0a3e 50%, #1a0a2e 100%);
+    }
+}
+
+.login-container {
+    text-align: center;
+    padding: 48px 40px;
+    background: var(--bg-panel);
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow), 0 0 60px rgba(0, 229, 255, 0.08);
+    animation: fadeInUp 0.6s ease-out;
+    max-width: 420px;
+    width: 90%;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.game-title {
+    font-family: var(--font-pixel);
+    font-size: 28px;
+    letter-spacing: 3px;
+    margin-bottom: 8px;
+    text-shadow: 0 0 20px var(--accent-glow), 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.game-title .accent {
+    color: var(--accent);
+}
+
+.subtitle {
+    color: var(--text-secondary);
+    font-size: 14px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    margin-bottom: 32px;
+}
+
+.login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 28px;
+}
+
+.login-form input {
+    padding: 14px 18px;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    color: var(--text-primary);
+    font-size: 15px;
+    font-family: var(--font-ui);
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.login-form input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 12px var(--accent-glow);
+}
+
+.btn-primary {
+    padding: 14px 24px;
+    background: linear-gradient(135deg, #00b4d8, #00e5ff);
+    border: none;
+    border-radius: 12px;
+    color: #000;
+    font-size: 15px;
+    font-weight: 700;
+    font-family: var(--font-ui);
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.2s;
+    letter-spacing: 1px;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px var(--accent-glow);
+}
+
+.btn-primary:active {
+    transform: translateY(0);
+}
+
+.btn-secondary {
+    padding: 12px 20px;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text-primary);
+    font-size: 14px;
+    font-family: var(--font-ui);
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-secondary:hover {
+    background: var(--bg-slot-selected);
+}
+
+.login-tips {
+    color: var(--text-secondary);
+    font-size: 12px;
+    line-height: 2;
+}
+
+/* ============ GAME SCREEN ============ */
+
+#game-screen {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+}
+
+#game-canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+}
+
+/* ============ HUD ============ */
+
+#hud {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    background: linear-gradient(180deg, rgba(10, 10, 30, 0.9) 0%, transparent 100%);
+    pointer-events: none;
+    z-index: 10;
+}
+
+#world-info {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+#world-name-display {
+    font-family: var(--font-pixel);
+    font-size: 13px;
+    color: var(--accent);
+    text-shadow: 0 0 8px var(--accent-glow);
+}
+
+#player-count {
+    font-size: 13px;
+    color: var(--text-secondary);
+}
+
+#gems-display {
+    font-family: var(--font-pixel);
+    font-size: 13px;
+    color: var(--accent-gold);
+    text-shadow: 0 0 8px rgba(255, 215, 0, 0.4);
+}
+
+.btn-back {
+    background: var(--bg-slot);
+    color: var(--accent);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 16px;
+    pointer-events: auto;
+    transition: background 0.2s, border-color 0.2s;
+}
+
+.btn-back:hover {
+    background: var(--bg-slot-selected);
+    border-color: var(--accent);
+}
+
+#mini-map {
+    position: absolute;
+    top: 60px;
+    right: 20px;
+    background: rgba(0, 0, 0, 0.6);
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    image-rendering: pixelated;
+    pointer-events: none;
+    z-index: 10;
+}
+
+/* ============ INVENTORY BAR ============ */
+
+/* ============ INVENTORY BAR (9 SLOTS) ============ */
+#inventory-bar {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: grid;
+    grid-template-columns: repeat(9, 56px);
+    gap: 6px;
+    padding: 10px;
+    background: rgba(10, 10, 30, 0.95);
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
+    z-index: 100;
+}
+
+.inv-slot {
+    width: 52px;
+    height: 52px;
+    background: var(--bg-slot);
+    border: 2px solid transparent;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    position: relative;
+    transition: border-color 0.15s, background 0.15s;
+}
+
+.inv-slot:hover {
+    background: var(--bg-slot-selected);
+}
+
+.inv-slot.selected {
+    border-color: var(--accent);
+    box-shadow: 0 0 10px var(--accent-glow);
+    background: rgba(0, 229, 255, 0.1);
+}
+
+.inv-slot .item-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 4px;
+}
+
+.inv-slot .item-count {
+    position: absolute;
+    bottom: 2px;
+    right: 4px;
+    font-size: 10px;
+    font-weight: 700;
+    color: #fff;
+    text-shadow: 1px 1px 2px #000;
+}
+
+.inv-slot .slot-key {
+    position: absolute;
+    top: 2px;
+    left: 4px;
+    font-size: 8px;
+    color: var(--text-secondary);
+}
+
+/* ============ CHAT ============ */
+
+#chat-container {
+    position: fixed;
+    bottom: 90px;
+    left: 16px;
+    width: 340px;
+    z-index: 10;
+    pointer-events: none;
+}
+
+#chat-messages {
+    max-height: 180px;
+    overflow-y: auto;
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    scrollbar-width: none;
+}
+
+#chat-messages::-webkit-scrollbar {
+    display: none;
+}
+
+.chat-msg {
+    font-size: 12px;
+    padding: 4px 8px;
+    border-radius: 6px;
+    background: rgba(10, 10, 30, 0.7);
+    backdrop-filter: blur(4px);
+    animation: chatFade 0.3s ease-out;
+    word-break: break-word;
+}
+
+.chat-msg .chat-name {
+    font-weight: 700;
+    color: var(--accent-green);
+    margin-right: 6px;
+}
+
+.chat-msg.system {
+    color: var(--accent-gold);
+    font-style: italic;
+}
+
+@keyframes chatFade {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+#chat-input {
+    width: 100%;
+    padding: 10px 14px;
+    background: rgba(12, 12, 30, 0.85);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text-primary);
+    font-size: 13px;
+    font-family: var(--font-ui);
+    outline: none;
+    pointer-events: auto;
+    display: none;
+}
+
+#chat-input.active {
+    display: block;
+}
+
+#chat-input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 12px var(--accent-glow);
+}
+
+/* ============ DIALOGS ============ */
+
+#world-nav,
+#shop-dialog,
+#sign-dialog {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    z-index: 100;
+}
+
+.dialog-box {
+    background: var(--bg-panel);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px;
+    min-width: 300px;
+    max-width: 400px;
+    box-shadow: var(--shadow);
+    animation: fadeInUp 0.3s ease-out;
+}
+
+.dialog-box h3 {
+    font-family: var(--font-pixel);
+    font-size: 14px;
+    margin-bottom: 16px;
+    color: var(--accent);
+}
+
+.dialog-box input,
+.dialog-box textarea {
+    width: 100%;
+    padding: 12px 14px;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text-primary);
+    font-size: 14px;
+    font-family: var(--font-ui);
+    outline: none;
+    margin-bottom: 14px;
+    resize: none;
+}
+
+.dialog-box input:focus,
+.dialog-box textarea:focus {
+    border-color: var(--accent);
+}
+
+.dialog-buttons {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+}
+
+/* Shop */
+.shop-box {
+    min-width: 360px;
+}
+
+.shop-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    background: var(--bg-input);
+    border-radius: 10px;
+    margin-bottom: 8px;
+    transition: background 0.2s;
+}
+
+.shop-item:hover {
+    background: var(--bg-slot-selected);
+}
+
+.shop-item-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.shop-item-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+}
+
+.shop-item-name {
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.shop-item-price {
+    color: var(--accent-gold);
+    font-weight: 700;
+    font-size: 13px;
+}
+
+.btn-buy {
+    padding: 6px 14px;
+    background: linear-gradient(135deg, #00b4d8, #00e5ff);
+    border: none;
+    border-radius: 8px;
+    color: #000;
+    font-weight: 700;
+    font-size: 12px;
+    cursor: pointer;
+    transition: transform 0.15s;
+}
+
+.btn-buy:hover {
+    transform: scale(1.05);
+}
+
+/* ============ TOOLTIP ============ */
+
+#tooltip {
+    position: fixed;
+    padding: 8px 12px;
+    background: rgba(10, 10, 30, 0.95);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 12px;
+    color: var(--text-primary);
+    pointer-events: none;
+    z-index: 200;
+    display: none;
+    white-space: nowrap;
+}
+
+/* ============ LOCK EFFECT ============ */
+
+@keyframes lockPulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(255, 68, 102, 0.6);
+    }
+
+    100% {
+        box-shadow: 0 0 30px 15px rgba(255, 68, 102, 0);
+    }
+}
+
+/* ============ NOTIFICATIONS ============ */
+#notification-container {
+    position: fixed;
+    top: 80px;
+    left: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    pointer-events: none;
+    z-index: 200;
+}
+
+.notification-card {
+    background: rgba(20, 20, 40, 0.9);
+    border-left: 4px solid var(--accent);
+    padding: 12px 20px;
+    border-top-right-radius: 8px;
+    border-bottom-right-radius: 8px;
+    color: var(--text-primary);
+    font-size: 13px;
+    font-weight: 600;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    animation: slideInRight 0.3s ease-out;
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(-50px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* ============ BACKPACK (36 SLOTS) ============ */
+#backpack-dialog {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    backdrop-filter: blur(5px);
+}
+
+.backpack-box {
+    width: 480px;
+    background: var(--bg-panel);
+    border: 3px solid var(--border);
+    border-radius: 12px;
+}
+
+.inventory-grid {
+    display: grid;
+    grid-template-columns: repeat(9, 1fr);
+    gap: 4px;
+    padding: 10px;
+}
+
+.inv-slot.backpack {
+    width: 46px;
+    height: 46px;
+    font-size: 10px;
+}
+
+/* ============ BLOCK BREAK PARTICLES ============ */
+
+.particle {
+    position: fixed;
+    width: 4px;
+    height: 4px;
+    pointer-events: none;
+    z-index: 50;
+    animation: particleFly 0.6s ease-out forwards;
+}
+
+@keyframes particleFly {
+    0% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0;
+        transform: translateY(30px) scale(0);
+    }
+}
+
+/* Lock Dialog */
+.lock-box {
+    min-width: 320px;
+}
+
+#lock-info {
+    background: var(--bg-input);
+    padding: 12px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    border: 1px solid var(--border);
+}
+
+.lock-owner,
+.lock-type {
+    font-size: 13px;
+    margin-bottom: 4px;
+}
+
+#lock-owner-name {
+    color: var(--accent);
+    font-weight: 700;
+}
+
+#lock-item-name {
+    color: var(--accent-gold);
+}
+
+.lock-access-section h4 {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+#lock-access-list {
+    max-height: 120px;
+    overflow-y: auto;
+    margin-bottom: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.login-form {
+    margin: 30px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.server-stat-badge {
+    align-self: center;
+    padding: 6px 12px;
+    background: var(--bg-input);
+    border: 1px solid var(--accent);
+    border-radius: 6px;
+    font-family: var(--font-pixel);
+    font-size: 10px;
+    color: var(--accent);
+    box-shadow: 0 0 10px var(--accent-glow);
+    margin-bottom: 8px;
+    animation: pulseGlow 2s infinite;
+}
+
+@keyframes pulseGlow {
+    0% {
+        box-shadow: 0 0 5px var(--accent-glow);
+    }
+
+    50% {
+        box-shadow: 0 0 15px var(--accent-glow);
+    }
+
+    100% {
+        box-shadow: 0 0 5px var(--accent-glow);
+    }
+}
+
+#recent-worlds-section {
+    margin-top: 32px;
+    text-align: left;
+    border-top: 1px dashed var(--border);
+    padding-top: 24px;
+}
+
+#recent-worlds-section h4 {
+    font-family: var(--font-pixel);
+    font-size: 10px;
+    color: var(--text-secondary);
+    margin-bottom: 16px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.pixel-list {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    max-height: 140px;
+    overflow-y: auto;
+    padding-right: 8px;
+}
+
+/* Custom scrollbar for pixel list */
+.pixel-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.pixel-list::-webkit-scrollbar-track {
+    background: var(--bg-dark);
+}
+
+.pixel-list::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 3px;
+}
+
+.pixel-world-item {
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    padding: 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: var(--font-pixel);
+    font-size: 9px;
+    transition: all 0.2s;
+    text-align: center;
+    color: var(--text-primary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.pixel-world-item:hover {
+    border-color: var(--accent);
+    background: var(--bg-slot-selected);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.pixel-list-empty {
+    grid-column: span 2;
+    text-align: center;
+    color: var(--text-secondary);
+    font-family: var(--font-pixel);
+    font-size: 9px;
+    padding: 20px 0;
+}
+
+.access-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+}
+
+.btn-remove {
+    background: none;
+    border: none;
+    color: var(--accent-red);
+    font-size: 18px;
+    cursor: pointer;
+    line-height: 1;
+}
+
+.lock-add-access {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+}
+
+.lock-add-access input {
+    margin-bottom: 0;
+    padding: 10px;
+}
+
+/* Directory Dialog */
+.directory-box {
+    min-width: 380px;
+}
+
+.directory-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-height: 300px;
+    overflow-y: auto;
+    padding-right: 4px;
+    margin-bottom: 20px;
+}
+
+.directory-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    background: var(--bg-input);
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    transition: transform 0.2s, background 0.2s;
+}
+
+.directory-item:hover {
+    background: var(--bg-slot-selected);
+    transform: translateX(4px);
+}
+
+.dir-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.dir-name {
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--accent);
+}
+
+.dir-players {
+    font-size: 11px;
+    color: var(--text-secondary);
+}
+
+.btn-visit {
+    padding: 8px 16px;
+    background: var(--bg-slot-selected);
+    border: 1px solid var(--accent);
+    border-radius: 8px;
+    color: var(--accent);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+}
+
+.btn-visit:hover {
+    background: var(--accent);
+    color: #000;
+}
+
+.empty-list,
+.loading {
+    text-align: center;
+    color: var(--text-secondary);
+    padding: 20px;
+    font-style: italic;
+    font-size: 13px;
+}
+
+/* ============ TRADE DIALOG ============ */
+.trade-box {
+    width: 600px;
+    max-width: 95%;
+}
+
+.trade-content {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 20px;
+    margin: 20px 0;
+}
+
+.trade-side {
+    flex: 1;
+    background: var(--bg-input);
+    border-radius: 12px;
+    padding: 15px;
+    border: 1px solid var(--border);
+}
+
+.side-header {
+    font-family: var(--font-pixel);
+    font-size: 10px;
+    color: var(--text-secondary);
+    margin-bottom: 12px;
+    text-align: center;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 8px;
+}
+
+.trade-vs {
+    font-family: var(--font-pixel);
+    font-size: 18px;
+    color: var(--text-secondary);
+    align-self: center;
+    opacity: 0.5;
+}
+
+.trade-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    min-height: 120px;
+}
+
+.trade-item {
+    width: 48px;
+    height: 48px;
+    background: var(--bg-slot);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.trade-item .count {
+    position: absolute;
+    bottom: 2px;
+    right: 4px;
+    font-size: 10px;
+    font-weight: 700;
+}
+
+#trade-status {
+    text-align: center;
+    font-size: 13px;
+    margin-bottom: 20px;
+    font-weight: 600;
+}
+
+.btn-primary.confirmed {
+    background: var(--accent-green);
+    color: #000;
+    box-shadow: 0 0 15px rgba(0, 255, 136, 0.4);
+}
+
+.pixel-border {
+    border: 2px solid var(--border);
+}
+
+/* Authentication */
+.auth-buttons {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.btn-text {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 13px;
+    text-decoration: underline;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+.btn-text:hover {
+    color: var(--accent);
+}
+
+.btn-back-icon {
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.auth-back {
+    margin-bottom: 14px;
+}

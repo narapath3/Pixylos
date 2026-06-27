@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PixelWorld - 2D Sandbox MMO</title>
+    <meta name="description"
+        content="A Growtopia-inspired 2D Sandbox MMO with block building, seed splicing, and multiplayer">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@400;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="css/game.css">
+</head>
+
+<body>
+    <!-- Login Screen -->
+    <div id="login-screen">
+        <div class="login-container">
+            <h1 class="game-title">🌍 PIXEL<span class="accent">WORLD</span></h1>
+            <p class="subtitle">2D Sandbox MMO</p>
+            <div class="login-form">
+                <div class="server-stat-badge">
+                    👥 Online: <span id="online-count">0</span>
+                </div>
+
+                <!-- Main Menu Panel -->
+                <div id="auth-main-panel">
+                    <button id="btn-show-login" class="btn-primary">🔑 LOGIN</button>
+                    <button id="btn-show-register" class="btn-secondary">📝 SIGN UP</button>
+                    <button id="btn-show-guest" class="btn-text">Play as Guest</button>
+                </div>
+
+                <!-- Login Panel -->
+                <div id="auth-login-panel" style="display:none;">
+                    <input type="text" id="login-username" placeholder="Username" maxlength="16">
+                    <input type="password" id="login-password" placeholder="Password">
+                    <input type="text" id="login-world" placeholder="World (START)" maxlength="24">
+                    <div class="auth-buttons">
+                        <button id="btn-login-submit" class="btn-primary">LOGIN</button>
+                        <button class="btn-back-icon auth-back" title="Back">◀</button>
+                    </div>
+                </div>
+
+                <!-- Register Panel -->
+                <div id="auth-register-panel" style="display:none;">
+                    <input type="text" id="register-name" placeholder="Full Name / Display Name" maxlength="20">
+                    <input type="text" id="register-username" placeholder="Login Username" maxlength="16">
+                    <input type="password" id="register-password" placeholder="Password">
+                    <div class="auth-buttons">
+                        <button id="btn-register-submit" class="btn-primary">SIGN UP</button>
+                        <button class="btn-back-icon auth-back" title="Back">◀</button>
+                    </div>
+                </div>
+
+                <!-- Guest Panel -->
+                <div id="auth-guest-panel" style="display:none;">
+                    <input type="text" id="guest-name" placeholder="Guest Name" maxlength="16">
+                    <input type="text" id="guest-world" placeholder="World (START)" maxlength="24">
+                    <div class="auth-buttons">
+                        <button id="btn-guest-submit" class="btn-primary">PLAY AS GUEST</button>
+                        <button class="btn-back-icon auth-back" title="Back">◀</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="recent-worlds-section">
+                <h4>Recent Worlds</h4>
+                <div id="recent-worlds-list" class="pixel-list">
+                    <!-- Populated via JS -->
+                    <div class="pixel-list-empty">Loading worlds...</div>
+                </div>
+            </div>
+            <div class="login-tips">
+                <p>🎮 WASD / Arrow Keys to move</p>
+                <p>🖱️ Left Click to punch | Right Click to place</p>
+                <p>📦 Number keys to select inventory slot</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Game Screen -->
+    <div id="game-screen" style="display:none;">
+        <canvas id="game-canvas"></canvas>
+
+        <!-- HUD -->
+        <div id="hud">
+            <div id="world-info">
+                <button id="btn-leave-world" class="btn-back" title="Leave World">◀</button>
+                <span id="world-name-display">START</span>
+                <span id="player-count">👤 1</span>
+            </div>
+            <div id="gems-info">
+                Gems: <span id="gems-display">100</span>
+            </div>
+
+            <canvas id="mini-map" width="160" height="80"></canvas>
+
+            <!-- Notifications -->
+            <div id="notification-container"></div>
+        </div>
+
+        <!-- Inventory Bar -->
+        <div id="inventory-bar"></div>
+
+        <!-- Chat -->
+        <div id="chat-container">
+            <div id="chat-messages"></div>
+            <input type="text" id="chat-input" placeholder="Press Enter to chat..." maxlength="120" autocomplete="off">
+        </div>
+
+        <!-- World Navigate -->
+        <div id="world-nav" style="display:none;">
+            <div class="dialog-box">
+                <h3>🚪 Enter World</h3>
+                <input type="text" id="nav-world-input" placeholder="World name..." maxlength="24" autocomplete="off">
+                <div class="dialog-buttons">
+                    <button id="btn-nav-go" class="btn-primary">GO</button>
+                    <button id="btn-nav-cancel" class="btn-secondary">Cancel</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Shop -->
+        <div id="shop-dialog" style="display:none;">
+            <div class="dialog-box shop-box">
+                <h3>🏪 Shop</h3>
+                <div id="shop-items"></div>
+                <button id="btn-shop-close" class="btn-secondary">Close</button>
+            </div>
+        </div>
+
+        <!-- Sign Dialog -->
+        <div id="sign-dialog" style="display:none;">
+            <div class="dialog-box">
+                <h3>📝 Sign</h3>
+                <textarea id="sign-text" maxlength="200" rows="4" placeholder="Write something..."></textarea>
+                <div class="dialog-buttons">
+                    <button id="btn-sign-save" class="btn-primary">Save</button>
+                    <button id="btn-sign-cancel" class="btn-secondary">Cancel</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lock Management Dialog -->
+        <div id="lock-dialog" style="display:none;">
+            <div class="dialog-box lock-box">
+                <h3>🔒 Manage Lock</h3>
+                <div id="lock-info">
+                    <div class="lock-owner">Owner: <span id="lock-owner-name">?</span></div>
+                    <div class="lock-type">Type: <span id="lock-item-name">?</span></div>
+                </div>
+                <div class="lock-access-section">
+                    <h4>Access List</h4>
+                    <div id="lock-access-list"></div>
+                    <div class="lock-add-access">
+                        <input type="text" id="lock-add-name" placeholder="Player name..." maxlength="16">
+                        <button id="btn-lock-add" class="btn-primary">Add</button>
+                    </div>
+                </div>
+                <div class="dialog-buttons">
+                    <button id="btn-lock-close" class="btn-secondary">Close</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Inventory / Backpack (36 slots) -->
+        <div id="backpack-dialog" style="display:none;">
+            <div class="dialog-box backpack-box">
+                <div class="dialog-header">
+                    <h3>🎒 Backpack</h3>
+                    <button class="btn-close-x" onclick="UI.closeBackpack()">&times;</button>
+                </div>
+                <div id="backpack-grid" class="inventory-grid"></div>
+                <div class="backpack-footer">
+                    <p class="hint">Click to swap with Hotbar</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recipe Panel -->
+        <div id="recipe-dialog" style="display:none;">
+            <div class="dialog-box recipe-box">
+                <h3>📖 Splice Recipes</h3>
+                <div id="recipe-list"></div>
+                <button onclick="document.getElementById('recipe-dialog').style.display='none'"
+                    class="btn-secondary">Close</button>
+            </div>
+        </div>
+
+        <!-- World Directory Dialog -->
+        <div id="directory-dialog" style="display:none;">
+            <div class="dialog-box directory-box">
+                <h3>🪐 World Directory</h3>
+                <div id="world-list" class="directory-list">
+                    <div class="loading">Loading worlds...</div>
+                </div>
+                <div class="dialog-buttons">
+                    <button id="btn-directory-close" class="btn-secondary">Close</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Trade Dialog -->
+        <div id="trade-dialog" style="display:none;">
+            <div class="dialog-box trade-box">
+                <div class="dialog-header">
+                    <h3>🤝 Secure Trade</h3>
+                    <button class="btn-close-x" onclick="UI.closeTrade()">&times;</button>
+                </div>
+                <div class="trade-content">
+                    <div class="trade-side">
+                        <div class="side-header">YOU</div>
+                        <div id="trade-my-offer" class="trade-grid"></div>
+                    </div>
+                    <div class="trade-vs">VS</div>
+                    <div class="trade-side">
+                        <div class="side-header" id="their-trade-name">PLAYER</div>
+                        <div id="trade-their-offer" class="trade-grid"></div>
+                    </div>
+                </div>
+                <div id="trade-status">Waiting for items...</div>
+                <div class="dialog-buttons">
+                    <button id="btn-trade-confirm" class="btn-primary">CONFIRM</button>
+                    <button id="btn-trade-cancel" class="btn-secondary">CANCEL</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase.js"></script>
+    <script src="/shared/constants.js"></script>
+    <script src="/shared/itemData.js"></script>
+    <script src="/shared/packets.js"></script>
+    <script src="js/sprites.js"></script>
+    <script src="js/network.js"></script>
+    <script src="js/camera.js"></script>
+    <script src="js/world.js"></script>
+    <script src="js/player.js"></script>
+    <script src="js/inventory.js"></script>
+    <script src="js/renderer.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/minimap.js"></script>
+    <script src="js/sound.js"></script>
+    <script src="js/main.js"></script>
+</body>
+
+</html>
