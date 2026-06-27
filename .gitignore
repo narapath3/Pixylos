@@ -3,3 +3,10 @@ node_modules/
 server/data/
 .gemini/
 *.log
+
+# wrangler files
+.wrangler
+.dev.vars*
+!.dev.vars.example
+.env*
+!.env.example
