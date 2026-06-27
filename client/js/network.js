@@ -180,7 +180,7 @@ const Network = {
         this.channel = supa.channel(`world:${worldName}`, {
             config: {
                 presence: {
-                    key: this.currentUser?.user_metadata?.username || 'Guest',
+                    key: this.currentUser?.id || 'guest-' + Math.random().toString(36).substring(7),
                 },
             },
         });
@@ -200,7 +200,7 @@ const Network = {
                 console.log('Join:', key, newPresences);
                 if (this.handlers[PacketTypes.S_PLAYER_JOIN]) {
                     newPresences.forEach(p => {
-                        if (p.name !== this.currentUser?.user_metadata?.username) {
+                        if (key !== this.currentUser?.id) {
                             this.handlers[PacketTypes.S_PLAYER_JOIN]({ player: p });
                         }
                     });
@@ -222,6 +222,7 @@ const Network = {
                     // Initial presence state
                     await this.channel.track({
                         name: this.currentUser?.user_metadata?.username || 'Guest',
+                        id: this.currentUser?.id,
                         x: spawnX,
                         y: spawnY
                     });
@@ -255,7 +256,7 @@ const Network = {
         // Map presence state to S_PLAYER_MOVE for all players
         for (const key in state) {
             const p = state[key][0];
-            if (p.name !== this.currentUser?.user_metadata?.username) {
+            if (key !== this.currentUser?.id) {
                 // If this is a new player we haven't seen in this session, trigger JOIN
                 if (!this.knownPlayers.has(p.name)) {
                     this.knownPlayers.add(p.name);
