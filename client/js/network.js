@@ -36,6 +36,7 @@ const Network = {
                 this.currentUser = null;
                 this.profile = null;
                 this.connected = false;
+                this.knownPlayers.clear();
             }
         });
     },
@@ -171,6 +172,7 @@ const Network = {
         }
 
         this.currentWorld = world;
+        this.knownPlayers.clear();
 
         // 2. Setup Realtime Channel
         if (this.channel) this.channel.unsubscribe();
@@ -207,6 +209,7 @@ const Network = {
             .on('presence', { event: 'leave' }, ({ key, leftPresences }) => {
                 if (this.handlers[PacketTypes.S_PLAYER_LEAVE]) {
                     leftPresences.forEach(p => {
+                        this.knownPlayers.delete(p.name);
                         this.handlers[PacketTypes.S_PLAYER_LEAVE]({ name: p.name });
                     });
                 }
@@ -246,11 +249,21 @@ const Network = {
             });
     },
 
+    knownPlayers: new Set(),
+
     updatePresence(state) {
         // Map presence state to S_PLAYER_MOVE for all players
         for (const key in state) {
             const p = state[key][0];
             if (p.name !== this.currentUser?.user_metadata?.username) {
+                // If this is a new player we haven't seen in this session, trigger JOIN
+                if (!this.knownPlayers.has(p.name)) {
+                    this.knownPlayers.add(p.name);
+                    if (this.handlers[PacketTypes.S_PLAYER_JOIN]) {
+                        this.handlers[PacketTypes.S_PLAYER_JOIN]({ player: p });
+                    }
+                }
+
                 if (this.handlers[PacketTypes.S_PLAYER_MOVE]) {
                     this.handlers[PacketTypes.S_PLAYER_MOVE]({
                         name: p.name,
