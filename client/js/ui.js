@@ -646,7 +646,7 @@ const UI = {
             const world = document.getElementById('guest-world').value.trim() || 'START';
 
             // Guest login in Supabase can be Anonymous login
-            const { data, error } = await supabase.auth.signInAnonymously({
+            const { data, error } = await supa.auth.signInAnonymously({
                 options: { data: { username: name || 'Guest' } }
             });
 

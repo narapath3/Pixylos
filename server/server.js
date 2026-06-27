@@ -235,8 +235,13 @@ wss.on('connection', (ws) => {
                 const player = players.get(ws);
                 if (!player || !player.worldName) return;
 
-                // Basic validation
+                // Anti-cheat validation
                 if (typeof msg.x !== 'number' || typeof msg.y !== 'number') return;
+
+                if (!player.validateMovement(msg.x, msg.y)) {
+                    console.log(`[Anti-cheat] Blocked invalid move for ${player.name}`);
+                    return;
+                }
 
                 player.x = msg.x;
                 player.y = msg.y;
@@ -588,8 +593,8 @@ setInterval(() => {
         saveWorld(world);
     }
     for (const player of players.values()) {
-        if (!player.isGuest) {
-            AuthManager.savePlayerData(player.name, player.getPrivateData());
+        if (!player.isGuest && player.accountData) {
+            AuthManager.savePlayerData(player.accountData.username, player.getPrivateData());
         }
     }
 }, 30000);
@@ -598,7 +603,9 @@ setInterval(() => {
 setInterval(() => {
     const now = Date.now();
     for (const [name, world] of worlds) {
-        if (world.players.size === 0 && now - world.lastActivity > 300000) {
+        // Correct check for players in world
+        const playersInWorld = getPlayersInWorld(name).length;
+        if (playersInWorld === 0 && now - world.lastActivity > 300000) {
             saveWorld(world);
             worlds.delete(name);
             console.log(`[World] Unloaded inactive world "${name}"`);

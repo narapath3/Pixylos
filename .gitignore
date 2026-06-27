@@ -1,6 +1,5 @@
 node_modules/
 .DS_Store
 server/data/
-client/js/supabase.js
 .gemini/
 *.log
