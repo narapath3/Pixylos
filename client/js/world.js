@@ -45,6 +45,20 @@ const ClientWorld = {
                         }
                     }
                 }
+            } else if (Array.isArray(data.tiles)) {
+                // Supabase format: raw array of objects
+                for (let y = 0; y < this.height; y++) {
+                    for (let x = 0; x < this.width; x++) {
+                        const idx = y * this.width + x;
+                        const tile = data.tiles[idx];
+                        if (tile) {
+                            this.tiles[y][x].fg = tile.fg || 0;
+                            this.tiles[y][x].bg = tile.bg || 0;
+                            this.tiles[y][x].extra = tile.extra || {};
+                            this.tiles[y][x].breakHits = tile.breakHits || 0;
+                        }
+                    }
+                }
             } else {
                 // Old format: raw flat arrays
                 const fg = data.fg;
@@ -55,8 +69,8 @@ const ClientWorld = {
                     for (let x = 0; x < this.width; x++) {
                         const idx = y * this.width + x;
                         const tileExtra = extra[idx] || { e: {}, h: 0 };
-                        this.tiles[y][x].fg = fg[idx];
-                        this.tiles[y][x].bg = bg[idx];
+                        this.tiles[y][x].fg = fg ? fg[idx] : 0;
+                        this.tiles[y][x].bg = bg ? bg[idx] : 0;
                         this.tiles[y][x].extra = tileExtra.e;
                         this.tiles[y][x].breakHits = tileExtra.h;
                     }

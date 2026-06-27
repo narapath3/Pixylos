@@ -641,13 +641,20 @@ const UI = {
 
             this.showNotification('Creating account...');
             const { error } = await Network.register(username, password, name);
-            if (error) return this.showNotification(error);
+            if (error) {
+                if (error.includes('confirmation')) {
+                    return this.showNotification('Account created, but email confirmation is required. Please check your email (or disable confirmation in Supabase).');
+                }
+                return this.showNotification('❌ ' + error);
+            }
 
             this.showNotification('Account created! Logging in...');
             const loginRes = await Network.login(username, password);
             if (!loginRes.error) {
                 sessionStorage.setItem('pendingWorld', 'START');
-                Network.joinWorld('START');
+                // joinWorld is called by S_JOIN_OK handler in main.js
+            } else {
+                this.showNotification('❌ Login failed: ' + loginRes.error);
             }
         };
 
@@ -669,15 +676,28 @@ const UI = {
             const name = document.getElementById('guest-name').value.trim();
             const world = document.getElementById('guest-world').value.trim() || 'START';
 
-            // Guest login in Supabase can be Anonymous login
+            this.showNotification('Logging in as Guest...');
             const { data, error } = await supa.auth.signInAnonymously({
                 options: { data: { username: name || 'Guest' } }
             });
 
-            if (error) return this.showNotification(error);
+            if (error) {
+                console.error('Guest login error:', error);
+                return this.showNotification('❌ Guest login failed: ' + error.message);
+            }
 
+            this.showNotification('Welcome, ' + (name || 'Guest') + '!');
             sessionStorage.setItem('pendingWorld', world);
-            Network.joinWorld(world);
+            // S_JOIN_OK is triggered by auth state change listener in main.js -> Network.on handler
+            // However, Network.js:onAuthStateChange doesn't trigger S_JOIN_OK.
+            // Let's manually trigger it like login does.
+            Network.connected = true;
+            Network.currentUser = data.user;
+            await Network.fetchProfile();
+
+            if (Network.handlers[PacketTypes.S_JOIN_OK]) {
+                Network.handlers[PacketTypes.S_JOIN_OK]({ name: name || 'Guest' });
+            }
         };
     },
 

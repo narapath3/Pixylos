@@ -42,13 +42,33 @@ const Network = {
 
     async fetchProfile() {
         if (!this.currentUser) return;
-        const { data, error } = await supa
+        let { data, error } = await supa
             .from('profiles')
             .select('*')
             .eq('id', this.currentUser.id)
             .single();
 
-        if (error) {
+        if (error && error.code === 'PGRST116') {
+            // Profile missing, create it
+            console.log('[Network] Profile missing, creating default...');
+            const newProfile = {
+                id: this.currentUser.id,
+                username: this.currentUser.user_metadata?.username || 'Player',
+                gems: 100,
+                inventory: []
+            };
+            const { data: created, error: createErr } = await supa
+                .from('profiles')
+                .insert([newProfile])
+                .select()
+                .single();
+
+            if (createErr) {
+                console.error('[Network] Error creating profile:', createErr);
+                return;
+            }
+            data = created;
+        } else if (error) {
             console.error('[Network] Error fetching profile:', error);
             return;
         }
@@ -110,6 +130,11 @@ const Network = {
         worldName = worldName.toUpperCase().replace(/[^A-Z0-9]/g, '');
         if (!worldName) worldName = 'START';
 
+        // 0. Ensure profile exists
+        if (!this.profile && this.currentUser) {
+            await this.fetchProfile();
+        }
+
         // 1. Fetch world data from Postgres
         let { data: world, error } = await supa
             .from('worlds')
@@ -118,14 +143,14 @@ const Network = {
             .single();
 
         if (error && error.code === 'PGRST116') {
-            // World doesn't exist, create it (Simplified client-side generation for now)
-            // In a production app, this should be done via an Edge Function
+            // World doesn't exist, create it
+            console.log(`[Network] World "${worldName}" not found, creating...`);
             const newWorld = {
                 name: worldName,
                 width: 100,
                 height: 60,
-                tiles: this.generateInitialWorldData(), // Helper to be defined or moved to shared
-                owner_id: this.currentUser?.id
+                tiles: this.generateInitialWorldData(),
+                owner_id: this.currentUser?.id || null
             };
             const { data: created, error: createErr } = await supa
                 .from('worlds')
@@ -133,10 +158,16 @@ const Network = {
                 .select()
                 .single();
 
-            if (createErr) return console.error('Failed to create world:', createErr);
+            if (createErr) {
+                console.error('Failed to create world:', createErr);
+                if (window.UI) UI.showNotification('❌ Failed to create world: ' + createErr.message);
+                return;
+            }
             world = created;
         } else if (error) {
-            return console.error('Error fetching world:', error);
+            console.error('Error fetching world:', error);
+            if (window.UI) UI.showNotification('❌ Error loading world: ' + error.message);
+            return;
         }
 
         this.currentWorld = world;
