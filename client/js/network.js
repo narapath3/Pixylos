@@ -6,6 +6,7 @@ const Network = {
     lastSeq: 0,
     currentUser: null,
     currentWorld: null,
+    profile: null,
 
     async init() {
         if (typeof supa === 'undefined') {
@@ -18,6 +19,7 @@ const Network = {
             const { data: { session } } = await supa.auth.getSession();
             if (session) {
                 this.currentUser = session.user;
+                await this.fetchProfile();
                 this.connected = true;
             }
         } catch (e) {
@@ -25,15 +27,46 @@ const Network = {
         }
 
         // Listen for auth changes
-        supa.auth.onAuthStateChange((event, session) => {
+        supa.auth.onAuthStateChange(async (event, session) => {
             if (session) {
                 this.currentUser = session.user;
+                await this.fetchProfile();
                 this.connected = true;
             } else {
                 this.currentUser = null;
+                this.profile = null;
                 this.connected = false;
             }
         });
+    },
+
+    async fetchProfile() {
+        if (!this.currentUser) return;
+        const { data, error } = await supa
+            .from('profiles')
+            .select('*')
+            .eq('id', this.currentUser.id)
+            .single();
+
+        if (error) {
+            console.error('[Network] Error fetching profile:', error);
+            return;
+        }
+        this.profile = data;
+    },
+
+    async saveProfile() {
+        if (!this.currentUser || !this.profile) return;
+        const { error } = await supa
+            .from('profiles')
+            .update({
+                gems: this.profile.gems,
+                inventory: this.profile.inventory,
+                updated_at: new Date().toISOString()
+            })
+            .eq('id', this.currentUser.id);
+
+        if (error) console.error('[Network] Error saving profile:', error);
     },
 
     async login(username, password) {
@@ -47,11 +80,12 @@ const Network = {
 
         if (error) return { error: error.message };
         this.currentUser = data.user;
+        await this.fetchProfile();
         this.connected = true;
 
         // Trigger S_JOIN_OK for compatibility
         if (this.handlers[PacketTypes.S_JOIN_OK]) {
-            this.handlers[PacketTypes.S_JOIN_OK]({ name: data.user.user_metadata.username });
+            this.handlers[PacketTypes.S_JOIN_OK]({ name: this.profile?.username || data.user.user_metadata.username });
         }
 
         return { data };
@@ -165,9 +199,9 @@ const Network = {
                                 tiles: world.tiles
                             },
                             player: {
-                                name: this.currentUser?.user_metadata?.username || 'Guest',
-                                gems: 100, // Fetch from profile in real implementation
-                                inventory: []
+                                name: this.profile?.username || this.currentUser?.user_metadata?.username || 'Guest',
+                                gems: this.profile?.gems || 100,
+                                inventory: this.profile?.inventory || []
                             },
                             players: [] // Will be populated by presence sync
                         });

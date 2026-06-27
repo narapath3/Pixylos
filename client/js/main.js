@@ -167,6 +167,24 @@ const Game = {
             }
             if (data.gems !== undefined) LocalPlayer.gems = data.gems;
             InventoryUI.render();
+
+            // Sync with Supabase Profile
+            if (Network.profile) {
+                Network.profile.inventory = LocalPlayer.inventory;
+                Network.profile.gems = LocalPlayer.gems;
+                Network.saveProfile();
+            }
+        });
+
+        Network.on(PacketTypes.S_GEMS_UPDATE, (data) => {
+            LocalPlayer.gems = data.gems;
+            UI.updateHUD(ClientWorld.name, OtherPlayers.players.size + 1, LocalPlayer.gems);
+
+            // Sync with Supabase Profile
+            if (Network.profile) {
+                Network.profile.gems = LocalPlayer.gems;
+                Network.saveProfile();
+            }
         });
 
         Network.on(PacketTypes.S_LOCK_EFFECT, (data) => {
