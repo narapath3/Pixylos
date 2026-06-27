@@ -228,12 +228,51 @@ const Game = {
                 } else {
                     LocalPlayer.punch();
                     SoundManager.playHit();
-                    Network.send(PacketTypes.C_HIT_BLOCK, { x: tx, y: ty });
+
+                    const result = ClientWorld.hitBlock(tx, ty);
+                    if (result) {
+                        if (result.destroyed) {
+                            // Give items/gems
+                            result.drops.forEach(d => LocalPlayer.addItem(d.itemId, d.count));
+                            if (result.layer === 'fg' && Math.random() < 0.3) {
+                                LocalPlayer.gems += 1;
+                                UI.updateHUD(ClientWorld.name, OtherPlayers.players.size + 1, LocalPlayer.gems);
+                            }
+
+                            // Broadcast final state
+                            Network.send(PacketTypes.S_BLOCK_UPDATE, {
+                                x: tx,
+                                y: ty,
+                                fg: ClientWorld.tiles[ty][tx].fg,
+                                bg: ClientWorld.tiles[ty][tx].bg,
+                                extra: {}
+                            });
+                        } else {
+                            // Broadcast damage/hits
+                            Network.send(PacketTypes.S_BLOCK_UPDATE, {
+                                x: tx,
+                                y: ty,
+                                breakHits: result.hits
+                            });
+                        }
+                    }
                 }
             } else if (this.mouseButton === 2) { // Right Click
                 if (selectedItem && !isWrench) {
-                    SoundManager.playPlace();
-                    Network.send(PacketTypes.C_PLACE_BLOCK, { x: tx, y: ty, itemId: selectedItem.itemId });
+                    const result = ClientWorld.placeBlock(tx, ty, selectedItem.itemId);
+                    if (result && result.placed) {
+                        SoundManager.playPlace();
+                        LocalPlayer.removeItem(selectedItem.itemId, 1);
+
+                        // Broadcast update
+                        Network.send(PacketTypes.S_BLOCK_UPDATE, {
+                            x: tx,
+                            y: ty,
+                            fg: ClientWorld.tiles[ty][tx].fg,
+                            bg: ClientWorld.tiles[ty][tx].bg,
+                            extra: ClientWorld.tiles[ty][tx].extra
+                        });
+                    }
                 }
             }
         }

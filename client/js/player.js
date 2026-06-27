@@ -160,6 +160,53 @@ const LocalPlayer = {
         this.punchTimer = 0.2;
         this.punching = true;
         setTimeout(() => this.punching = false, 200);
+    },
+
+    addItem(itemId, count) {
+        const item = ITEMS[itemId];
+        if (!item) return;
+
+        const existing = this.inventory.find(slot => slot.itemId === itemId);
+        if (existing) {
+            existing.count += count;
+        } else {
+            this.inventory.push({ itemId, count });
+        }
+
+        if (window.UI) UI.updateHUD(ClientWorld.name, OtherPlayers.players.size + 1, this.gems);
+        if (window.InventoryUI) InventoryUI.render();
+        Network.saveProfile();
+    },
+
+    removeItem(itemId, count) {
+        const idx = this.inventory.findIndex(slot => slot.itemId === itemId);
+        if (idx === -1) return false;
+        if (this.inventory[idx].count < count) return false;
+
+        this.inventory[idx].count -= count;
+        if (this.inventory[idx].count <= 0) {
+            this.inventory.splice(idx, 1);
+        }
+
+        if (window.UI) UI.updateHUD(ClientWorld.name, OtherPlayers.players.size + 1, this.gems);
+        if (window.InventoryUI) InventoryUI.render();
+        Network.saveProfile();
+        return true;
+    },
+
+    hasItem(itemId, count = 1) {
+        const slot = this.inventory.find(s => s.itemId === itemId);
+        return slot && slot.count >= count;
+    },
+
+    buyItem(itemId) {
+        const shopItem = SHOP.find(s => s.itemId === itemId);
+        if (!shopItem) return { error: 'not_in_shop' };
+        if (this.gems < shopItem.price) return { error: 'not_enough_gems' };
+
+        this.gems -= shopItem.price;
+        this.addItem(itemId, 1);
+        return { success: true, remaining: this.gems };
     }
 };
 

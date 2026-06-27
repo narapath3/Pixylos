@@ -297,7 +297,8 @@ const Network = {
         });
 
         // Special handling for block interactions (persist to DB)
-        if (type === PacketTypes.C_HIT_BLOCK || type === PacketTypes.C_PLACE_BLOCK) {
+        // Now using S_BLOCK_UPDATE for persistence since client calculates result
+        if (type === PacketTypes.S_BLOCK_UPDATE) {
             this.persistBlockChange(data);
         }
     },
