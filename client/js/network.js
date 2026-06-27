@@ -213,11 +213,14 @@ const Network = {
             })
             .subscribe(async (status) => {
                 if (status === 'SUBSCRIBED') {
+                    const spawnX = 50 * CONSTANTS.TILE_SIZE;
+                    const spawnY = (CONSTANTS.SURFACE_LEVEL - 3) * CONSTANTS.TILE_SIZE;
+
                     // Initial presence state
                     await this.channel.track({
                         name: this.currentUser?.user_metadata?.username || 'Guest',
-                        x: 50 * 32, // Default spawn
-                        y: 30 * 32
+                        x: spawnX,
+                        y: spawnY
                     });
 
                     // Trigger S_WORLD_DATA for compatibility
@@ -231,6 +234,8 @@ const Network = {
                             },
                             player: {
                                 name: this.profile?.username || this.currentUser?.user_metadata?.username || 'Guest',
+                                x: spawnX,
+                                y: spawnY,
                                 gems: this.profile?.gems || 100,
                                 inventory: this.profile?.inventory || []
                             },
@@ -316,21 +321,24 @@ const Network = {
     },
 
     generateInitialWorldData() {
-        const width = 100;
-        const height = 60;
-        const SURFACE_BASE = 24;
+        const width = CONSTANTS.WORLD_WIDTH;
+        const height = CONSTANTS.WORLD_HEIGHT;
+        const SURFACE_BASE = CONSTANTS.SURFACE_LEVEL;
         const tiles = [];
 
         for (let y = 0; y < height; y++) {
             for (let x = 0; x < width; x++) {
                 let fg = 0, bg = 0;
                 const h1 = Math.sin(x * 0.1) * 4;
-                const surfaceHeight = Math.floor(SURFACE_BASE + h1);
+                const h2 = Math.sin(x * 0.05) * 2;
+                const surfaceHeight = Math.floor(SURFACE_BASE + h1 + h2);
 
                 if (y === height - 1) fg = 18; // Bedrock
+                else if (y >= height - 3) fg = 5; // Lava
                 else if (y > surfaceHeight) {
                     fg = 1; // Dirt
                     bg = 12; // Cave
+                    if (y > surfaceHeight + 10 && Math.random() < 0.15) fg = 3; // Rock
                 } else if (y === surfaceHeight) {
                     fg = 7; // Grass
                 }
