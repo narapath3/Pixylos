@@ -15,6 +15,30 @@ const UI = {
         this.registerHandlers();
     },
 
+    updateLoginWorldList(worlds) {
+        const list = document.getElementById('recent-worlds-list');
+        if (!list) return;
+        list.innerHTML = '';
+
+        if (!worlds || (Array.isArray(worlds) && worlds.length === 0)) {
+            list.innerHTML = '<div class="pixel-list-empty">No worlds found</div>';
+            return;
+        }
+
+        worlds.forEach(w => {
+            const el = document.createElement('div');
+            el.className = 'pixel-list-item';
+            el.innerHTML = `<span>${w.name}</span>`;
+            el.onclick = () => {
+                const loginInput = document.getElementById('login-world');
+                if (loginInput) loginInput.value = w.name;
+                const btn = document.getElementById('btn-show-login');
+                if (btn) btn.click();
+            };
+            list.appendChild(el);
+        });
+    },
+
     registerHandlers() {
         Network.on(PacketTypes.S_LOCK_DATA, (data) => {
             if (data.type === 'sign') {

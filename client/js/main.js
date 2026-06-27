@@ -7,21 +7,16 @@ const Game = {
     async init() {
         console.log('🌍 PixelWorld Initializing...');
 
-        // Connect network (Supabase)
-        try {
-            await Network.init();
-        } catch (e) {
-            console.error('[Game] Network initialization failed:', e);
-            // We allow the game to continue so the UI can at least render
-        }
-
-        // Initialize Sprites
+        // Initialize Sprites and UI immediately
         SpriteManager.init();
-
-        // Setup UI
         UI.init();
         InventoryUI.init();
         MiniMap.init();
+
+        // Connect network (Supabase) in background
+        this.initNetwork();
+
+        // Setup Mouse Tracking
 
         // Setup Mouse Tracking
         const canvas = document.getElementById('game-canvas');
@@ -223,6 +218,23 @@ const Game = {
                     Network.send(PacketTypes.C_PLACE_BLOCK, { x: tx, y: ty, itemId: selectedItem.itemId });
                 }
             }
+        }
+    },
+
+    async initNetwork() {
+        try {
+            await Network.init();
+            // Fetch initial world list or stats if possible
+            // For now, we manually update the 'Loading worlds...' text
+            const { data: worlds, error } = await supa.from('worlds').select('name').limit(5);
+            if (!error && worlds) {
+                UI.updateLoginWorldList(worlds);
+            } else {
+                UI.updateLoginWorldList([]);
+            }
+        } catch (e) {
+            console.error('[Game] Network background init failed:', e);
+            UI.updateLoginWorldList([]);
         }
     }
 };
